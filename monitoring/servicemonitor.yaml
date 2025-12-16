@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: servicemonitor
+  namespace: monitoring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+data:
+  webapp-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "Web Application Metrics",
+        "tags": ["webapp", "nodejs"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "title": "HTTP Request Rate",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total[5m])",
+                "legendFormat": "{{method}} {{route}}"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "HTTP Request Duration",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+                "legendFormat": "95th percentile"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "Active Connections",
+            "targets": [
+              {
+                "expr": "nodejs_active_handles_total",
+                "legendFormat": "Active Handles"
+              }
+            ],
+            "type": "graph"
+          },
+          {
+            "title": "Memory Usage",
+            "targets": [
+              {
+                "expr": "nodejs_heap_size_used_bytes / 1024 / 1024",
+                "legendFormat": "Heap Used (MB)"
+              }
+            ],
+            "type": "graph"
+          }
+        ]
+      }
+    }

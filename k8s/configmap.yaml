@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webapp-config
+  namespace: cicd-webapp
+data:
+  PORT: "3000"
+  MONGODB_URI: "mongodb://mongodb-service:27017/webapp"
+  NODE_ENV: "production"
