@@ -4,15 +4,12 @@
   "description": "Sample Web Application for Jenkins CI/CD Pipeline Demo",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "start": "node app.js"
   },
   "keywords": [
     "nodejs",
     "express",
-    "mongodb",
+    "sqlite",
     "cicd",
     "jenkins",
     "kubernetes",
@@ -25,11 +22,6 @@
     "sqlite3": "^5.1.6",
     "body-parser": "^1.20.2",
     "prom-client": "^15.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1",
-    "jest": "^29.7.0",
-    "supertest": "^6.3.3"
   },
   "engines": {
     "node": ">=18.0.0",

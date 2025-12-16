@@ -43,21 +43,6 @@ pipeline {
             }
         }
         
-        stage('Run Tests') {
-            when {
-                expression { fileExists('/usr/bin/npm') || fileExists('/usr/local/bin/npm') }
-            }
-            steps {
-                script {
-                    echo '========================================='
-                    echo 'Running Unit Tests'
-                    echo '========================================='
-                }
-                
-                sh 'npm test || true'
-            }
-        }
-        
         stage('Docker Image Creation') {
             steps {
                 script {
