@@ -120,7 +120,7 @@ sudo systemctl enable jenkins
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
-Access Jenkins at: `http://<EC2-PUBLIC-IP>:8080`
+Access Jenkins at: `http://13.60.162.92:8080`
 
 ### Step 3: Install Docker
 
@@ -250,13 +250,13 @@ git push -u origin main
 Before running the pipeline, update the following in `Jenkinsfile`:
 
 ```groovy
-DOCKER_IMAGE = 'YOUR_DOCKERHUB_USERNAME/cicd-webapp'
+DOCKER_IMAGE = 'irfanriaz076/cicd-webapp'
 ```
 
 Also update in `k8s/deployment.yaml`:
 
 ```yaml
-image: YOUR_DOCKERHUB_USERNAME/cicd-webapp:latest
+image: irfanriaz076/cicd-webapp:latest
 ```
 
 ## 🔄 Pipeline Stages

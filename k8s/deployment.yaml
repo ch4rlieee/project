@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: webapp
-        image: yourusername/cicd-webapp:latest
+        image: irfanriaz076/cicd-webapp:latest
         ports:
         - containerPort: 3000
           name: http

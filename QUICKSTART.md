@@ -66,7 +66,7 @@ minikube start --driver=docker --cpus=2 --memory=4096
 # Get initial password
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
-# Open browser: http://<EC2-IP>:8080
+# Open browser: http://13.60.162.92:8080
 # Paste password
 # Install suggested plugins
 # Create admin user
@@ -124,7 +124,7 @@ git push
 ### 7. Setup Webhook (1 min)
 
 GitHub Repo → Settings → Webhooks → Add:
-- URL: `http://<EC2-IP>:8080/github-webhook/`
+- URL: `http://13.60.162.92:8080/github-webhook/`
 - Content type: `application/json`
 - Events: Just the push event
 

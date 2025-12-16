@@ -73,7 +73,7 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 ### Access Jenkins
 
-Open browser and navigate to: `http://<EC2-PUBLIC-IP>:8080`
+Open browser and navigate to: `http://13.60.162.92:8080`
 
 ### Initial Jenkins Configuration
 
@@ -274,7 +274,7 @@ Click **Save**
 1. Go to your GitHub repository
 2. Click **Settings** → **Webhooks** → **Add webhook**
 3. Configure:
-   - Payload URL: `http://<EC2-PUBLIC-IP>:8080/github-webhook/`
+   - Payload URL: `http://13.60.162.92:8080/github-webhook/`
    - Content type: `application/json`
    - Secret: (leave empty for now)
    - SSL verification: Disable (if using HTTP)
