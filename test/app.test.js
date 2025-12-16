@@ -1,14 +1,15 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
 const app = require('../app');
 
 describe('API Endpoints', () => {
   beforeAll(async () => {
-    // Setup test database connection if needed
+    // Wait for database to initialize
+    await new Promise(resolve => setTimeout(resolve, 1000));
   });
 
   afterAll(async () => {
-    await mongoose.connection.close();
+    // Close server connections
+    await new Promise(resolve => setTimeout(resolve, 500));
   });
 
   describe('GET /', () => {

@@ -5,5 +5,5 @@ metadata:
   namespace: cicd-webapp
 data:
   PORT: "3000"
-  MONGODB_URI: "mongodb://mongodb-service:27017/webapp"
+  DB_PATH: "/app/data/database.sqlite"
   NODE_ENV: "production"

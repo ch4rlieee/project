@@ -6,26 +6,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/webapp
       - PORT=3000
-    depends_on:
-      - mongodb
-    restart: unless-stopped
-    networks:
-      - app-network
-
-  mongodb:
-    image: mongo:7
-    ports:
-      - "27017:27017"
+      - DB_PATH=/app/data/database.sqlite
     volumes:
-      - mongodb-data:/data/db
+      - ./data:/app/data
     restart: unless-stopped
     networks:
       - app-network
-
-volumes:
-  mongodb-data:
 
 networks:
   app-network:

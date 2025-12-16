@@ -28,17 +28,9 @@ spec:
         envFrom:
         - configMapRef:
             name: webapp-config
-        env:
-        - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: webapp-secret
-              key: DB_USERNAME
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: webapp-secret
-              key: DB_PASSWORD
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
         livenessProbe:
           httpGet:
             path: /health
@@ -62,4 +54,7 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
+      volumes:
+      - name: data
+        emptyDir: {}
       restartPolicy: Always

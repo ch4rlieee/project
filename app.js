@@ -1,11 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const client = require('prom-client');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongodb:27017/webapp';
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.sqlite');
 
 // Prometheus metrics setup
 const register = new client.Registry();
@@ -40,22 +41,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB Connection
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
-
-// User Schema
-const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  createdAt: { type: Date, default: Date.now }
+// SQLite Database Connection
+const db = new sqlite3.Database(DB_PATH, (err) => {
+  if (err) {
+    console.error('Database connection error:', err);
+  } else {
+    console.log('SQLite database connected successfully');
+    // Create users table if it doesn't exist
+    db.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  }
 });
-
-const User = mongoose.model('User', UserSchema);
 
 // Routes
 app.get('/', (req, res) => {
@@ -78,7 +80,7 @@ app.get('/health', (req, res) => {
     status: 'UP',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    database: db ? 'connected' : 'disconnected'
   };
   res.status(200).json(health);
 });
@@ -90,27 +92,32 @@ app.get('/metrics', async (req, res) => {
 });
 
 // Get all users
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await User.find();
+app.get('/api/users', (req, res) => {
+  db.all('SELECT * FROM users', [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
+    }
     res.json({
       success: true,
-      count: users.length,
-      data: users
+      count: rows.length,
+      data: rows
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
+  });
 });
 
 // Get user by ID
-app.get('/api/users/:id', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
+app.get('/api/users/:id', (req, res) => {
+  db.get('SELECT * FROM users WHERE id = ?', [req.params.id], (err, row) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
+    }
+    if (!row) {
       return res.status(404).json({
         success: false,
         error: 'User not found'
@@ -118,39 +125,55 @@ app.get('/api/users/:id', async (req, res) => {
     }
     res.json({
       success: true,
-      data: user
+      data: row
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
+  });
 });
 
 // Create new user
-app.post('/api/users', async (req, res) => {
-  try {
-    const { name, email } = req.body;
-    const user = new User({ name, email });
-    await user.save();
-    res.status(201).json({
-      success: true,
-      data: user
-    });
-  } catch (error) {
-    res.status(400).json({
+app.post('/api/users', (req, res) => {
+  const { name, email } = req.body;
+  
+  if (!name || !email) {
+    return res.status(400).json({
       success: false,
-      error: error.message
+      error: 'Name and email are required'
     });
   }
+  
+  db.run('INSERT INTO users (name, email) VALUES (?, ?)', [name, email], function(err) {
+    if (err) {
+      return res.status(400).json({
+        success: false,
+        error: err.message
+      });
+    }
+    
+    db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, row) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          error: err.message
+        });
+      }
+      res.status(201).json({
+        success: true,
+        data: row
+      });
+    });
+  });
 });
 
 // Delete user
-app.delete('/api/users/:id', async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
+app.delete('/api/users/:id', (req, res) => {
+  db.run('DELETE FROM users WHERE id = ?', [req.params.id], function(err) {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
+    }
+    if (this.changes === 0) {
       return res.status(404).json({
         success: false,
         error: 'User not found'
@@ -160,12 +183,7 @@ app.delete('/api/users/:id', async (req, res) => {
       success: true,
       message: 'User deleted successfully'
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
+  });
 });
 
 // Error handling middleware

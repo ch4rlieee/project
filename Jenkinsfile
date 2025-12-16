@@ -116,10 +116,7 @@ pipeline {
                 // Apply Kubernetes manifests
                 sh """
                     kubectl apply -f k8s/namespace.yaml
-                    kubectl apply -f k8s/mongodb-deployment.yaml
-                    kubectl apply -f k8s/mongodb-service.yaml
                     kubectl apply -f k8s/configmap.yaml
-                    kubectl apply -f k8s/secret.yaml
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
                 """
